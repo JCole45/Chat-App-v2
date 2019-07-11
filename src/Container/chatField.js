@@ -183,7 +183,7 @@ class ChatField extends Component {
   }
 
   onEnterSend (f) {
-    if(f.key==='Enter'){this.props.sendMessage(this.state.message, this.state.id, this.state.imageURL, this.state.nickname, this.state.id);
+    if(f.key==='Enter'){this.props.sendMessage(this.state.message, this.state.imageURL, this.state.user, this.state.id);
     this.setState({message:''}) }
   }
 
