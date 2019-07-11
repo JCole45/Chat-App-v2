@@ -33,7 +33,9 @@ const Send = (state=INIT_STATE, action) => {
           id:action.id,
           text: action.text,
           time: time,
-          uID: uID++
+          uID: uID++,
+          image: action.image,
+          recieved: false
         } 
       ]
 

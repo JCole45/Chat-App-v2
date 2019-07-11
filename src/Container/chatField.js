@@ -264,11 +264,11 @@ class ChatField extends Component {
       
   <div >
   {/* SENT MESSAGES */}
-   {t.recieved == false ? <div>  
+   {t.recieved == false ? <div class="sent">  
             
     <span  onClick={()=> this.setState({uID:t.uID})}>
 
-<div className="sent">{t.text}{ t.image.length ==0  ? <img src={t.image} width="80" height="75"/> : null } <span class="time-right">{t.time} </span></div>
+{t.text}{ t.image > 6   ? <img src={t.image} width="80" height="75"/> : null } <span class="time-right">{t.time} </span>
 
 <Select options={['edit']}
  value={"edit"} onChange={({option}) => 
@@ -301,13 +301,13 @@ dropContent={
 
 </span>
 
-   </div> : <div> 
+   </div> : <div class="recieved"> 
 
      {/* RECEIVED MESSAGES */}
 
     <span  onClick={()=> this.setState({uID:t.uID})}>
 
-<div className="recieved">{t.text}{ t.image ? <img src={t.image} width="80" height="75"/> : null } <span class="time-left">{t.time} </span></div>
+<div >{t.text}{ t.image.length > 6 ? <img src={t.image} width="80" height="75"/> : null } <span class="time-left">{t.time} </span></div>
 
 
 <DropButton
@@ -318,13 +318,13 @@ size="small"
 dropContent={
 
 <Box pad="large" background="light-2">
-  <span > /* user list for text forwarding */
+  <span > {/* user list for text forwarding */}
     {this.props.users.map((u) => <ul>
-        <li onClick={()=>this.setState({fid: u.id})}> /* sets the forward id "fid" to the user id"uid" selected */
+        <li onClick={()=>this.setState({fid: u.id})}> {/* sets the forward id "fid" to the user id"uid" selected */}
           {u.name}{this.state.fid==u.id? <span class="dot"></span> : null}
            </li></ul>)}
    </span>
-<button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)}>send</button> /* forward text button */
+<button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)}>send</button> {/* forward text button */}
 </Box>}/>
 
 

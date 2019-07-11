@@ -46,7 +46,8 @@ export function sendMessage (text, image, nickname,  id) {
         dispatch({
           type: SEND_MESSAGE,
           text,
-          id
+          id,
+          image
         })
   } 
 }
