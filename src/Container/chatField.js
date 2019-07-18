@@ -13,6 +13,7 @@ import firebase from 'firebase';
 import Rebase from 're-base';
 import 'firebase/auth';
 import Details from '../Authentication/Details';
+import {FormDown, UserAdd, Attachment, Down, Send, Edit, More} from 'grommet-icons';
 
 
 const base = Rebase.createClass(app.database());
@@ -22,6 +23,9 @@ var info = data.sort(function(a,b){
   return new Date(b.date) - new Date(a.date);
 });
   const replyList = document.querySelector("#query-m");
+  const now = new Date;
+
+  const randNo =  now.getDay() + now.getSeconds() + "ab"   
 
 
 class ChatField extends Component {
@@ -29,7 +33,7 @@ class ChatField extends Component {
     super(props)
     this.state = {
         user: '',
-        message: '',
+        message: 'w',
         final: '',
         username: '',
         id: 0,
@@ -44,7 +48,8 @@ class ChatField extends Component {
         replyid: [],
         nickname: '',
         dp: '',
-        user: ''
+        user: '',
+        identifier: ''
     }
 
     this.onAddUser= this.onAddUser.bind(this)
@@ -145,11 +150,12 @@ class ChatField extends Component {
     alert("created on " + this.props.users.map(u=> u.date));
   }
 
-  onEditText(e) {
+  onEditText(e, f) {
+    let d = prompt("edit text below")
     e=='edit' ?
-    this.props.editText(this.state.uID , prompt("edit text below"))
+    this.props.editText(f , d) 
     : this.props.forwardText(this.state.id, this.state.uID, this.setState({id: this.state.uID}));
-
+alert(this.state.identifier)
   }
 
   handleUploadSuccess = filename => {
@@ -224,9 +230,9 @@ class ChatField extends Component {
            size="small"
            onKeyPress={ this.onEnterAdd.bind(this)}/>
 
-           <button color="primary" variant="outlined" onClick={()=>
+           <Button color="primary" variant="outlined" onClick={()=>
              {this.props.addUser(this.state.username);
-           this.setState({username:''}) }}> add user </button>
+           this.setState({username:''}) }}> add user </Button>
 
 
 
@@ -235,19 +241,20 @@ class ChatField extends Component {
   border={{ color: 'brand', size: 'large' }}
   pad="large" round="true" width="xlarge" height="medium"
 >
-<img src="/w3images/bandmember.jpg" alt="Avatar"  onClick={()=> alert("not available")} />
 
   <Box className="user box" pad="medium" background="dark-3" width="small" overflow="scroll">
-  <Text color="Pink"> Users: </Text>
+
+   {/*User List on the Right */}
+  <div class="head"><Text color="Purple"> Users: </Text></div>
   <div className="userList">
 
     {this.props.users.map( (u) =>
-      (<div><span onClick={()=> {this.onAddId(u.name, u.name)} }>
+      (<div class="users"><span onClick={()=> {this.onAddId(u.name, u.name)} }>
           {this.state.id==u.id? <span class="dot"></span> : null}{u.name}
 
           <Select
-            options={['info','remove']}
-            value={"Options"}
+            options={['info', 'delete']}
+            value={<More size="small"/>}
             onChange={({ option }) => this.onAlertTest(option)}/>
 
          </span></div> ))}
@@ -265,33 +272,40 @@ class ChatField extends Component {
   <div >
   {/* SENT MESSAGES */}
    {t.recieved == false ? <div class="sent">  
-            
-    <span  onClick={()=> this.setState({uID:t.uID})}>
-
-{t.text}{ t.image > 6   ? <img src={t.image} width="80" height="75"/> : null } <span class="time-right">{t.time} </span>
+                        {/*  <div class="mine messages"> 
+                          <div class="message last">  */}
 
 <Select options={['edit']}
- value={"edit"} onChange={({option}) => 
- this.onEditText(option)} alignSelf="center" size="small" 
- style={{width:'30%', height:20}}
- />
+ value={<Edit  size='small'/>} onChange={({option}) => 
+ this.onEditText(option, t.identifier) } onClick={()=> alert(t.identifier)} alignSelf="center" size="small" 
+ style={{width:'5%', height:10}}
+    /> 
 
+
+{/*forward*/}
 <DropButton
-label="Forward"
-style={{width:'20%', height:30}}
+label= {<Send size='small'/>} 
+style={{width:'7%', height:30}}
 dropAlign={{ top: 'bottom', right: 'right' }}
 size="small"
 dropContent={
 
 <Box pad="large" background="light-2">
-  <span > /* user list for text forwarding */
+  <span class="forward"> {/* user list for text forwarding */}
+  <div class="head"><Text color="Purple"> Forward message to: </Text></div>
+  <div class="forwardList">
     {this.props.users.map((u) => <ul>
-        <li onClick={()=>this.setState({fid: u.id})}> /* sets the forward id "fid" to the user id"uid" selected */
+        <li onClick={()=>this.setState({fid: u.id, final:  t.text, s: this.props.text.map((t)=> t.identifier)})}> {/* sets the forward id "fid" to the user id"uid" selected */}
           {u.name}{this.state.fid==u.id? <span class="dot"></span> : null}
-           </li></ul>)}
+           </li></ul>)} </div>
    </span>
-<button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)}>send</button> /* forward text button */
+<Button color="primary" variant="outlined" onClick={()=> this.props.forwardText(this.state.fid, this.state.user, this.state.final, randNo, this.state.s )}>send</Button> {/* forward text button */}
 </Box>}/>
+
+<span  onClick={()=> this.setState({uID:t.uID, identifier: t.identifier})}>
+
+{t.text}{ t.image > 6   ? <img src={t.image} width="80" height="75"/> : null } <span class="time-right">{t.time} </span> 
+
 
 
 <span>
@@ -300,32 +314,34 @@ dropContent={
 
 
 </span>
-
+    {/*</div> </div> */}
    </div> : <div class="recieved"> 
 
      {/* RECEIVED MESSAGES */}
 
     <span  onClick={()=> this.setState({uID:t.uID})}>
 
-<div >{t.text}{ t.image.length > 6 ? <img src={t.image} width="80" height="75"/> : null } <span class="time-left">{t.time} </span></div>
-
 
 <DropButton
-label="Forward"
-style={{width:'20%', height:30}}
+label={<Send size='small'/>}
+style={{width:'7%', height:30}}
 dropAlign={{ top: 'bottom', right: 'right' }}
 size="small"
 dropContent={
 
 <Box pad="large" background="light-2">
-  <span > {/* user list for text forwarding */}
+  <span class="forward"> {/* user list for text forwarding */}
+  <div class="head"><Text color="Purple"> Forward message to: </Text></div>
+    <div class="forwardList">
     {this.props.users.map((u) => <ul>
-        <li onClick={()=>this.setState({fid: u.id})}> {/* sets the forward id "fid" to the user id"uid" selected */}
+        <li onClick={()=>this.setState({fid: u.id, final:  t.text, s: this.props.text.map((t)=> t.identifier)})}> {/* sets the forward id "fid" to the user id"uid" selected */}
           {u.name}{this.state.fid==u.id? <span class="dot"></span> : null}
-           </li></ul>)}
+           </li></ul>)} </div>
    </span>
-<button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)}>send</button> {/* forward text button */}
+<Button onClick={()=> this.props.forwardText(this.state.fid, this.state.user, this.state.final, randNo, this.state.s )} color="primary" variant="outlined">send</Button> {/* forward text button */}
 </Box>}/>
+
+<div >{t.text}{ t.image ?  null : <div><img src={t.image} width="80" height="75"/></div> } <span >{t.time} </span></div>
 
 
 <span>
@@ -361,7 +377,7 @@ dropContent={
                     {u.name}{this.state.fid==u.id? <span class="dot"></span> : null}
                      </li></ul>)}
              </span>
-          <button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)}>send</button> /* forward text button */
+          <button onClick={()=> this.props.forwardText(this.state.fid, this.state.uID)} color="primary" variant="outlined">send</button> /* forward text button */
          </Box>}/>
 
 
@@ -384,17 +400,17 @@ dropContent={
 
 <TextInput onChange={this.onSendMessage}
   value={this.state.message}
-  placeholder="send message"
+  placeholder="type message here..."
   onKeyPress={ this.onEnterSend.bind(this)}/>
 
 <Button onClick={()=> { this.setState({message:''})}}> cancel </Button>
 
-<Button onClick={() => {this.state.id =='e' ? alert("select user") : this.setState({final:this.state.message}); this.props.sendMessage(this.state.message, this.state.imageURL, this.state.user, this.state.id);
- this.setState({message:'', imageURL:''}) }}> send </Button>
+<Button onClick={() => {this.state.id =='e' ? alert("select user") : this.setState({final:this.state.message}); this.props.sendMessage(this.state.message, this.state.imageURL, this.state.user, this.state.id, randNo);
+ this.setState({message:'', imageURL:''}) }} color="primary" variant="outlined" > SEND </Button>
 
 <label style={{backgroundColor: 'steelblue', color: 'white', padding: 10,
  borderRadius: 4, pointer: 'cursor'}}>
-   +
+   <Attachment/>
  <FileUploader
  hidden
 accept="image/video/*"
@@ -402,8 +418,11 @@ name="image"
 storageRef={firebase.storage().ref('Images')}
 onUploadSuccess={this.handleUploadSuccess}
 />
-
  </label>
+ {/*<cryptoRun color='plain' size='xlarge' onClick={()=> alert("its here")} />
+
+<CloudDownload color='plain' size='small' onClick={()=> alert("its here")} />
+  <Down color='plain' size='large' onClick={()=> alert("its here")} /> */}
 
  
 

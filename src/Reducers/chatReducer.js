@@ -1,4 +1,4 @@
-import { SEND_MESSAGE, ADD_USER, REMOVE_USER, EDIT_TEXT, FORWARD_TEXT, GET_REPLIES, USER_PROFILE, FETCH_POST } from '../Actions/actionTypes'
+import { SEND_MESSAGE, ADD_USER, REMOVE_USER, EDIT_TEXT, FORWARD_TEXT, USER_PROFILE, FETCH_POST, FETCH_REPLY } from '../Actions/actionTypes'
 import { combineReducers } from 'redux'
 import casual from 'casual-browserify'
 import Rebase from 're-base';
@@ -6,6 +6,19 @@ import app from '../base';
 import firebase from 'firebase';
 import { DropButton } from 'grommet';
 
+function getUnique(arr, comp) {
+
+  const unique = arr
+       .map(e => e[comp])
+
+     // store the keys of the unique objects
+    .map((e, i, final) => final.indexOf(e) === i && i)
+
+    // eliminate the dead keys & store unique objects
+    .filter(e => arr[e]).map(e => arr[e]);
+
+   return unique;
+}
 
 
 var INIT_STATE = ["first state"]
@@ -27,7 +40,6 @@ const Send = (state=INIT_STATE, action) => {
       case SEND_MESSAGE:
       var date = new Date
       var time = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-      var sentence = casual.sentence
   
       return [...state, {
           id:action.id,
@@ -35,7 +47,8 @@ const Send = (state=INIT_STATE, action) => {
           time: time,
           uID: uID++,
           image: action.image,
-          recieved: false
+          recieved: false,
+          identifier: action.randNo
         } 
       ]
 
@@ -47,32 +60,40 @@ const Send = (state=INIT_STATE, action) => {
          time: action.time,
          id: action.id,
          image: action.image,
-         uID: action.sender
+         uID: action.sender,
+         identifier: action.identifier
        }]; 
+
+       case FETCH_REPLY:
+       return [...state, {
+         recieved: false,
+       }
+       ]
 
 
       case REMOVE_USER:
       return( state.filter(text=>  text.id !==action.id))
 
+
       case EDIT_TEXT:
       return state.map((i) => {
-        if(i.uID== action.uID) {
+        if(i.identifier == action.identifier) {
         return {...i,
-        text:action.newtext} }
+        text:action.newtext + " edited"} }
 
         return i
-      })
+      } )
+
        
       case FORWARD_TEXT:
       return [...state, {
-        id: action.id,
-        text: state.map((i)=> {
-          if(i.uID==action.uID) {
-            return i.text
-          }
-        }),
+        id: action.fid,
+        text: action.text,
         time: time,
-        uID: fuID--
+        uID: action.fid,
+        recieved: false,
+        identifier: action.randNo + 'f',
+        image: ''
       }]
 
       default:
@@ -106,14 +127,15 @@ const Add = (state= [], action) => {
       (alert("message forwarded to " + state.map(a=>action.id==a.id? a.name: null)))
 
       case FETCH_POST:
+      let user = action.name
       let count = state.length
       for (var i=0; i<=count; i++) {
            var dan= checker++
+            state = [...state, {name: action.sender, id: action.sender, date: time}]
 
-              
-      }
+           return getUnique(state,'name')  
+      } 
     if (dan ==0) {
-      state = [...state, {name: action.sender, id: action.sender, date: time}]
     }
 
       default:
