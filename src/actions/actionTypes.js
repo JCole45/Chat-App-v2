@@ -1,0 +1,6 @@
+export const SEND_MESSAGE = 'SEND_MESSAGE'
+export const RECEIVE_MESSAGE = 'RECEIVE_MESSAGE'
+export const ADD_USER = 'ADD_USER'
+export const REMOVE_USER = 'REMOVE_USER'
+export const EDIT_TEXT = 'EDIT_TEXT'
+export const FORWARD_TEXT = 'FORWARD_TEXT'
